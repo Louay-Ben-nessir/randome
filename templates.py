@@ -75,7 +75,7 @@ for var in variables:
             logique+='\n\tdo { '*cond
             logique+='\n\tprintf("donner la valure de {}: ");'.format(var.name)
             logique+='\n\tscanf("%{}",&{});'.format(identefiers[var.type_],var.name)
-            logique+='\n\t{3}\n while({0}>={1} && {0}<={2})'.format(var.name,ranges[0],ranges[-1],'}')*cond
+            logique+='\n\t{3}\n while({0}>={1} && {0}<={2});'.format(var.name,ranges[0],ranges[-1],'}')*cond
             
 
 file_ = open(sys.argv[1]+'.c', "w")
