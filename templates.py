@@ -71,9 +71,8 @@ variables.sort()
 for var in variables:
     if not(var.is_const):
         if var.is_result:
-
+	    logique+='\n\t{}=;'.format(var.name)
        	    if sys.argv[3]:#compact mode
-       	        logique+='\n\t{}=;'.format(var.name)
        	        results[0]+=' {0}=%{1}'.format(var.name,identefiers[var.type_])
        	        results[1]+=',{0}'.format(var.name)
        	    else:
