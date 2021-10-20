@@ -64,6 +64,7 @@ c_vars_lines=[i for i in c_vars_lines if i[-2]!=' ']#clean variabless items
 vars_lines=[i for i in vars_lines if i[-2]!=' ']
 definitions=''.join(c_vars_lines)+''.join(vars_lines)
 logique=''
+variables.sort()
 for var in variables:
     if not(var.is_const):
         if var.is_result:
