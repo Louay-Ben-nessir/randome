@@ -4,6 +4,7 @@ import sys
 ########################################
 FIRST VRAIBLE IS THE NAMe .c is added automaticly
 SECOND IW WTHERE OR NOT WE WONT MATH 1 IS WE WANT IT
+thid is wthere we want it to be compact(1) or not 0
 then the argumantens 
 const {type} {var=val}
 -c {var} a..b
@@ -17,7 +18,7 @@ from functools import total_ordering
 #file_name=sys.argv[1]
 
 identefiers={'int':'d','float':'f','char':'c'}
-var_types={'int':0,'float':1,'char':2}
+var_types={'char':0,'int':1,'float':2}
 variables=[]
 
 @total_ordering
@@ -35,7 +36,7 @@ class variable:
             
 
 
-arg=3
+arg=4
 is_const=False
 is_result=False
 while arg != len(sys.argv):
@@ -64,23 +65,35 @@ c_vars_lines=[i for i in c_vars_lines if i[-2]!=' ']#clean variabless items
 vars_lines=[i for i in vars_lines if i[-2]!=' ']
 definitions=''.join(c_vars_lines)+''.join(vars_lines)
 logique=''
+results=['\n\tprintf("les valures:','"','']
+var_list=['\n\tprintf("donner les valures des','scanf("','']
 variables.sort()
 for var in variables:
     if not(var.is_const):
         if var.is_result:
-            logique+='\n\t{}=;'.format(var.name)
-            logique+='\n\tprintf("valure de {0} est %{1}\\n",{0});'.format(var.name,identefiers[var.type_])
+
+       	    if sys.argv[3]:#compact mode
+       	        logique+='\n\t{}=;'.format(var.name)
+       	        results[0]+=' {0}=%{1}'.format(var.name,identefiers[var.type_])
+       	        results[1]+=',{0}'.format(var.name)
+       	    else:
+	 	
+            	logique+='\n\tprintf("valure de {0} est %{1}\\n",{0});'.format(var.name,identefiers[var.type_])
         else:
             cond=int(var.range_!='a..b')
             ranges=var.range_.split('..')
-            logique+='\n\tdo { '*cond
-            logique+='\n\tprintf("donner la valure de {}: ");'.format(var.name)
-            logique+='\n\tscanf("%{}",&{});'.format(identefiers[var.type_],var.name)
-            logique+='\n\t{3}\n while({0}>={1} && {0}<={2});'.format(var.name,ranges[0],ranges[-1],'}')*cond
-            
-
+            if cond or not(sys.argv[3]):
+            	logique+='\n\tdo { '*cond
+            	logique+='\n\tprintf("donner la valure de {}: ");'.format(var.name)
+            	logique+='\n\tscanf("%{}",&{});'.format(identefiers[var.type_],var.name)
+            	logique+='\n\t{3}\n while({0}>={1} && {0}<={2});'.format(var.name,ranges[0],ranges[-1],'}')*cond
+            else:
+            	var_list[0]+=' '+var.name
+            	var_list[1]+='%'+identefiers[var.type_]
+            	var_list[2]+=',&'+var.name
+if sys.argv[3]:logique=(var_list[0]+'");\n\t'+var_list[1]+'"'+var_list[2]+');\n\t')*(len(var_list[2])!=0)+logique+(''.join(results)+');\n\t')*(len(results[1])!=0)
+           
 file_ = open(sys.argv[1]+'.c', "w")
 file_.write(Base+definitions+logique+'\n}')
 file_.close()
-
 
