@@ -72,7 +72,7 @@ for var in variables:
     if not(var.is_const):
         if var.is_result:
 	    logique+='\n\t{}=;'.format(var.name)
-       	    if sys.argv[3]:#compact mode
+       	    if int(sys.argv[3]):#compact mode
        	        results[0]+=' {0}=%{1}'.format(var.name,identefiers[var.type_])
        	        results[1]+=',{0}'.format(var.name)
        	    else:
@@ -81,7 +81,7 @@ for var in variables:
         else:
             cond=int(var.range_!='a..b')
             ranges=var.range_.split('..')
-            if cond or not(sys.argv[3]):
+            if cond or not(int(sys.argv[3])):
             	logique+='\n\tdo { '*cond
             	logique+='\n\tprintf("donner la valure de {}: ");'.format(var.name)
             	logique+='\n\tscanf("%{}",&{});'.format(identefiers[var.type_],var.name)
@@ -90,7 +90,7 @@ for var in variables:
             	var_list[0]+=' '+var.name
             	var_list[1]+='%'+identefiers[var.type_]
             	var_list[2]+=',&'+var.name
-if sys.argv[3]:logique=(var_list[0]+'");\n\t'+var_list[1]+'"'+var_list[2]+');\n\t')*(len(var_list[2])!=0)+logique+(''.join(results)+');\n\t')*(len(results[1])!=0)
+if int(sys.argv[3]):logique=(var_list[0]+'");\n\t'+var_list[1]+'"'+var_list[2]+');\n\t')*(len(var_list[2])!=0)+logique+(''.join(results)+');\n\t')*(len(results[1])!=0)
            
 file_ = open(sys.argv[1]+'.c', "w")
 file_.write(Base+definitions+logique+'\n}')
