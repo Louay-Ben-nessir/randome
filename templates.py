@@ -56,7 +56,7 @@ while arg != len(sys.argv):
         variables.append(variable(sys.argv[arg],current_type,is_const,is_result))
     arg+=1
 
-file_ = open(sys.argv[1]+'.c', "w")	
+
 Base='#include <stdio.h>\n'+'#include <math.h>\n'*int(sys.argv[2])+'int main()\n{'
 c_vars_lines=['\n\tconst '+c_type_+' '+','.join([c_var.name for c_var in variables if (c_var.is_const and c_var.type_==c_type_)])+';' for c_type_ in var_types]
 vars_lines=['\n\t'+c_type_+' '+','.join([var.name for var in variables if (not(var.is_const) and var.type_==c_type_)])+';' for c_type_ in var_types]
