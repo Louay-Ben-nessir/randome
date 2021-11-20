@@ -5,6 +5,9 @@
 #include <stdlib.h>
 #include <time.h>
 
+
+
+
 void sorting_types_formating(char *string, char **sorting_list, int nbr_sorting_types){
     char temp[15];
     int size=0;
@@ -42,21 +45,29 @@ bool is_sorted_asscending(int input[],int size){
     for(int i = 0 ;i<size-1 ; i++) if (input[i]>input[i+1]) return false;
     return true;
 }
-void Bogosort(int *input[],int size,int current_position){//1 setp of bogo sort
-    int r=rand()%size, swap = input[current_position];
-    input[current_position]=input[r];
-    input[r]=swap;
+void swap(int input[],int changes[]){
+    int aux=input[changes[0]];
+    input[changes[0]]=input[changes[1]];
+    input[changes[1]]=aux;
 }
-void sort(int *input[],int size , int sorting_algo, int current_position){
-    if(!is_sorted_asscending(input,size)){
+void Bogosort(int input[],int size,int current_position,int changes[]){
+    int r=rand()%size, swap = input[current_position];
+    while (r==current_position) r=rand()%size;
+    changes[0]=current_position;changes[1]=r;
+}
+
+bool sort(int input[],int size , int sorting_algo, int current_position,int changes[2]){
+    if(!is_sorted_asscending(input,size)){ // 1 setp of any giving sorting algorithem
         switch (sorting_algo)
         {
-        case 0:Bogosort(input,size,current_position);
+        case 0:Bogosort(input,size,current_position,changes);
             break;
         default:
             break;
         }
+        return false;
     }
+    return true;
 
 }
 
@@ -77,7 +88,7 @@ int main(){
     // input array config and vars
     // ---------------------------------------------------------------------------
     bool input_values_f = false;//foucues on inpt values text box
-    char input_values[256] = "1,23,51,50";//"Input the values you want sorted seperated by a ',' ";
+    char input_values[256] = "1,2,3,4";//"Input the values you want sorted seperated by a ',' ";
     bool nmb_of_vals_f = false;//foucues on nmb value text box values 
     char nmb_of_vals[5] = "0";
     int values_to_sort[256];
@@ -97,8 +108,13 @@ int main(){
     int nbr_rect = parse_input(input_values,&values_to_sort,256);
     bool sorting = false;
     int current_position = 0;
-    int delay=100*(CLOCKS_PER_SEC/1000);
-    clock_t time;
+    int delay=1000*(CLOCKS_PER_SEC/1000);
+    clock_t time=clock()-delay;
+    int changed_values[2] = {-1,-1};
+    Color rect_colour = MAROON;
+    bool havent_swaped=false;
+    bool Done_sorting=false;
+
     // Main loop
     // ---------------------------------------------------------------------------
     while (!exitWindow)
@@ -126,13 +142,20 @@ int main(){
             rescale_input(&values_to_sort, nbr_rect);
             current_position=0;
         }else if(clock()>time+delay) {
-            sort(&values_to_sort,nbr_rect,sorting_type_selector,current_position);
+            Done_sorting=sort(values_to_sort,nbr_rect,sorting_type_selector,current_position,changed_values);
             time=clock();
-            
             current_position=(current_position+1)%nbr_rect;//position cant be bigger than nbr rect
+            havent_swaped=true;
             }
+        if (Done_sorting){
+            //whatere we want to go after we finish sorting goes here 
+            havent_swaped=false;
+        }
+        if(havent_swaped && clock()>=time+(delay/2)) {swap(values_to_sort,changed_values);havent_swaped=false;} // at hafe of the delay time switch the boxes so it's heighlited first then switched
         for (int i = 0 ; i<nbr_rect;i++){ //draw the inital rectangels   
-            DrawRectangle(200+i*((screenWidth-485)/nbr_rect), screenHeight-25-values_to_sort[i], (screenWidth-490)/nbr_rect, values_to_sort[i], MAROON);//last rect width +5 white pixel seperator   485 490              
+            if (i==changed_values[0] || i==changed_values[1]) rect_colour = BLACK; // HEIGHTLIGHT THE CHANGEING BLOCKS
+            DrawRectangle(200+i*((screenWidth-485)/nbr_rect), screenHeight-25-values_to_sort[i], (screenWidth-490)/nbr_rect, values_to_sort[i],rect_colour);//last rect width +5 white pixel seperator   485 490              
+            rect_colour= MAROON;
             }
         
         EndDrawing();
