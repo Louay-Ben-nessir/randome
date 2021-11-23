@@ -53,7 +53,7 @@ bool is_sorted_asscending(int input[],int size){
     return true;
 }
 void swap(int input[],int changes[],int sorting_algo){
-    if ((input[changes[0]]>input[changes[1]]) || sorting_algo==0 ){
+    if (changes[2]){
     int aux=input[changes[0]];
     input[changes[0]]=input[changes[1]];
     input[changes[1]]=aux;
@@ -63,23 +63,45 @@ void Bogosort(int input[],int size,int *itr_nbr,int changes[]){
     int current_position=*itr_nbr%size;
     int r=rand()%size, swap = input[current_position];
     while (r==current_position) r=rand()%size;
-    changes[0]=current_position;changes[1]=r;
+    changes[0]=current_position;changes[1]=r;changes[2]=true;
 }
 void Bubble(int input[],int size,int *itr_nbr,int changes[]){
+    int current_position=*itr_nbr+1,nbr_cycles=1;
+    while(current_position>=size-nbr_cycles) {current_position-=size-nbr_cycles;nbr_cycles++;};   
+    changes[0]=current_position-1;changes[1]=current_position;changes[2]=input[changes[0]]>input[changes[1]];
+}
+void Selection(int input[],int size,int *itr_nbr,int changes[]){
+    if(changes[3]==-1) changes[3]=0; // the min tracking box should start at 0 if it dosent have any value befor hand 
     int current_position=*itr_nbr+1,nbr_cycles=0;
-    while(current_position>=size-nbr_cycles) {current_position-=size-nbr_cycles-1;nbr_cycles++;};   
-    changes[0]=current_position-1;changes[1]=current_position;
+    while(current_position>=size-nbr_cycles) {current_position-=size-nbr_cycles-1;nbr_cycles++;};  
+    current_position+=nbr_cycles;
+    changes[0]=nbr_cycles;//of the first unsorted element
+    changes[1]=current_position;//normal counter going thorough every position
+    changes[2]=false;//swap at the start of every cycel 
+    changes[3]=(input[changes[3]]>input[changes[1]])?changes[1]:changes[3];
+    if(current_position-nbr_cycles==0){//finesed a loop and about to start another
+        changes[1]=changes[3];// take the smallest elemnt 
+        changes[2]=true;
+        changes[3]=nbr_cycles;
+        *itr_nbr-=1;//set back the itterations by one so the swap dosent count as a step
+    }
+   
+     
+    
+    printf("%d\n",current_position-nbr_cycles);
+     
     
 }
-
 
 bool sort(int input[],int size , int sorting_algo, int *itr_nmb,int changes[2]){
     if(!is_sorted_asscending(input,size)){ // 1 setp of any giving sorting algorithem
         switch (sorting_algo)
         {
-        case 0:Bogosort(input,size,itr_nmb,changes);
+        case 0: Bogosort(input,size,itr_nmb,changes);
             break;
         case 1: Bubble(input,size,itr_nmb,changes);
+            break;
+        case 2: Selection(input,size,itr_nmb,changes);
             break;
         default:
             break;
@@ -116,8 +138,8 @@ int main(){
     // SORTING TYPE BTNS SELECT CONFIG AND VARS
     // ---------------------------------------------------------------------------
     int sorting_type_selector = 0; // indicates the selected sorting type 
-    int nbr_sorting_types = 2 ; // keep track of the number of implemented sorting types
-    char *sorting_types[20] = {"Bogosort","Bubble"}; // A list of pointers to sorting names.
+    int nbr_sorting_types = 3 ; // keep track of the number of implemented sorting types
+    char *sorting_types[20] = {"Bogosort","Bubble","Selection"}; // A list of pointers to sorting names.
     char formated_sorting_types[100] = ""; //allocationg 10 chars for every sorting algo  name 
     sorting_types_formating(&formated_sorting_types,sorting_types,nbr_sorting_types); // format the string to use as argument for buttons
 
@@ -130,7 +152,7 @@ int main(){
     int itr_nbr = 0;
     int delay=1000*(CLOCKS_PER_SEC/1000);
     clock_t time=clock()-delay;
-    int changed_values[2] = {-1,-1};
+    int changed_values[3] = {-1, -1, 0, -1};//first & second boxes to heighlight then 0 or 1 to swap or not ; and the forth is a special box that we want to bring attention to
     Color rect_colour = MAROON;
     bool havent_swaped=false;
     bool Done_sorting=false;
@@ -161,7 +183,7 @@ int main(){
             nbr_rect=parse_input(input_values,&values_to_sort,256);// keep parsing the input as long as the text box is foucesed and not currently sorting
             rescale_input(&values_to_sort, nbr_rect);
             itr_nbr=0;
-            empty_array(changed_values,2);
+            changed_values[0]=-1;changed_values[1]=-1;changed_values[2]=false,changed_values[3]=-1;
         }else if(clock()>time+delay) {
             Done_sorting=sort(values_to_sort,nbr_rect,sorting_type_selector,&itr_nbr,changed_values);
             time=clock();
@@ -175,6 +197,7 @@ int main(){
         if(havent_swaped && clock()>=time+(delay/2)) {swap(values_to_sort,changed_values,sorting_type_selector);havent_swaped=false;} // at hafe of the delay time switch the boxes so it's heighlited first then switched
         for (int i = 0 ; i<nbr_rect;i++){ //draw the inital rectangels   
             if (i==changed_values[0] || i==changed_values[1]) rect_colour = BLACK; // HEIGHTLIGHT THE CHANGEING BLOCKS
+            if (i==changed_values[3]) rect_colour = YELLOW;
             DrawRectangle(200+i*((screenWidth-485)/nbr_rect), screenHeight-25-values_to_sort[i], (screenWidth-490)/nbr_rect, values_to_sort[i],rect_colour);//last rect width +5 white pixel seperator   485 490              
             rect_colour= MAROON;
             }
