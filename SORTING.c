@@ -58,23 +58,29 @@ bool is_sorted_asscending(int input[],int size){
     for(int i = 0 ;i<size-1 ; i++) if (input[i]>input[i+1]) return false;
     return true;
 }
-void swap(int changes[]){
+void swap(int input[],int changes[]){
     if (changes[0]){
     int aux=values_to_sort[changes[1]];
     values_to_sort[changes[1]]=values_to_sort[changes[2]];
     values_to_sort[changes[2]]=aux;
     }
 }
+void copy(int source[], int size,int dest[]){
+    for (int i = 0 ; i<size ; i++) dest[i]=source[i];
+}
 void *Bogosort(){
-        int r=0;
+        int r=0;//  MAKE A COPPPPPPPPPPPPPPPPPPY OF THE ARRRRRRRRRRRRRRRRRRRRRRRAY
         int change_counter=0;
-        while (!(is_sorted_asscending(values_to_sort,nbr_rect)) && change_counter<1000){
+        int input[256];
+        copy(values_to_sort,nbr_rect,input);
+        while (!(is_sorted_asscending(input,nbr_rect)) && change_counter<1000){
         for ( int i = 0 ; i< nbr_rect ; i++){
             r=rand()%nbr_rect;
             while (r==i) r=rand()%nbr_rect;
             changed_values[change_counter][0]=1;
             changed_values[change_counter][1]=i;
             changed_values[change_counter][2]=r;  
+            swap(input,changed_values[change_counter]);
             change_counter++;
         }
         }
@@ -187,7 +193,7 @@ int main(){
             //whatere we want to go after we finish sorting goes here 
             havent_swaped=false;
         }
-        if(havent_swaped && clock()>=time+(delay/2)) {swap(changed_values[itr_nbr]);havent_swaped=false;} // at hafe of the delay time switch the boxes so it's heighlited first then switched
+        if(havent_swaped && clock()>=time+(delay/2)) {swap(values_to_sort,changed_values[itr_nbr]);havent_swaped=false;} // at hafe of the delay time switch the boxes so it's heighlited first then switched
         
         for (int i = 0 ; i<nbr_rect;i++){ //draw the inital rectangels   
             if (i==changed_values[itr_nbr][1] || i==changed_values[itr_nbr][2]) rect_colour = BLACK; // HEIGHTLIGHT THE CHANGEING BLOCKS
